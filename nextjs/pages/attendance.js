@@ -6,7 +6,12 @@ const Attendance = () => {
   return (
     <Container>
       <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
-        <Typography variant="h5">Date: 2023/03/15</Typography>
+            <div style={{ marginBottom: '20px' }}>
+                <label htmlFor="date">Date: </label>
+                <input type="date" id="date" defaultValue="2023-03-15" style={{ marginRight: '10px' }} />
+                <button>Generate Sheet</button>
+            </div>
+        
         <Button variant="contained">Generate Sheet</Button>
       </Box>
       <Box mt={4}>

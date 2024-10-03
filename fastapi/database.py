@@ -1,5 +1,5 @@
 from databases import Database
-
+from datetime import date  # Import date from datetime module
 
 POSTGRES_USER = "temp"
 POSTGRES_PASSWORD = "temp"
@@ -63,4 +63,85 @@ async def delete_user(user_id: int):
    query = "DELETE FROM users WHERE user_id = :user_id RETURNING *"
    return await database.fetch_one(query=query, values={"user_id": user_id})
 
+async def get_student_by_id(studentID: int):
+    query = """
+    SELECT name, attendanceCount, absentCount
+    FROM Student
+    WHERE studentID = :studentID
+    """
+    values = {"studentID": studentID}
+    student = await database.fetch_one(query=query, values=values)
+    return student
 
+# Function to insert a new student into the Student table (no studentID needed)
+async def create_student(name: str, attendanceCount: int = 0, absentCount: int = 0):
+    query = """
+    INSERT INTO Student (name, attendanceCount, absentCount)
+    VALUES (:name, :attendanceCount, :absentCount)
+    RETURNING studentID, name, attendanceCount, absentCount
+    """
+    values = {
+        "name": name,
+        "attendanceCount": attendanceCount,
+        "absentCount": absentCount,
+    }
+    new_student = await database.fetch_one(query=query, values=values)
+    return new_student
+ 
+async def delete_student_by_id(studentID: int):
+    """
+    Deletes a student from the Student table using the studentID.
+
+    Args:
+        studentID (int): The ID of the student to delete.
+
+    Returns:
+        dict: The deleted student record if the deletion was successful, None otherwise.
+    """
+    query = "DELETE FROM Student WHERE studentID = :studentID RETURNING *"
+    values = {"studentID": studentID}
+    deleted_student = await database.fetch_one(query=query, values=values)
+    return deleted_student
+
+# Function to fetch all students from the database
+async def get_all_students():
+    """
+    Fetches all students from the Student table.
+
+    Returns:
+        List of dictionaries containing student details.
+    """
+    query = """
+    SELECT studentid, name, attendancecount, absentcount
+    FROM student
+    """
+    try:
+        students = await database.fetch_all(query=query)
+        return students
+    except Exception as e:
+        print(f"Failed to fetch students: {e}")
+        return []
+
+
+async def get_attendance_by_id(attendanceID: int):
+    query = """
+    SELECT Date
+    FROM Attendance
+    WHERE attendanceID = :attendanceID
+    """
+    values = {"attendanceID": attendanceID}
+    attendance = await database.fetch_one(query=query, values=values)
+    return attendance
+
+
+
+# Function to insert a new attendance record into the Attendance table
+async def create_attendance(Date: date):
+    query = """
+    INSERT INTO Attendance (Date)
+    VALUES (:Date)
+    RETURNING attendanceID, Date
+    """
+    values = {"Date": Date}
+    new_attendance = await database.fetch_one(query=query, values=values)
+    return new_attendance
