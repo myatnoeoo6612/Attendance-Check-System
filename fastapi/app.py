@@ -45,6 +45,8 @@ async def get_student(studentID: int):
     return {"student": student}
 
 
+
+
 # Updated endpoint to create a new student without requiring studentID
 @app.post("/api/students")
 async def add_student(student: StudentCreate):
@@ -66,7 +68,6 @@ class AttendanceCreate(BaseModel):
 
 
 
-
 # Endpoint to delete a student by ID
 @app.delete("/api/students/{studentID}")
 async def delete_student(studentID: int):
@@ -77,15 +78,19 @@ async def delete_student(studentID: int):
     return {"message": f"Student ID {studentID} deleted successfully", "student": deleted_student}
 
 
-# Updated /api/students endpoint in app.py
 
-# Endpoint to get all students
-@app.get("/api/students")
-async def get_all_students():
-    students = await get_all_students()
-    if not students:
-        raise HTTPException(status_code=404, detail="No students found")
-    return students
+# # Endpoint to get all students
+# @app.get("/api/students")
+# async def get_all_students():
+#     students = await get_all_students()
+#     if not students:
+#         raise HTTPException(status_code=404, detail="No students found")
+#     return {"students": students}
+
+
+@app.get("/api/sstudents")
+async def read_all_students():
+    return await get_all_students()
 
 # Endpoint to get attendance by ID
 @app.get("/api/attendance/{attendanceID}")
