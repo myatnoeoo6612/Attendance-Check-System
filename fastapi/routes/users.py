@@ -36,6 +36,11 @@ class UserLogin(BaseModel):
    email: str
    password_hash: str
 
+class student(BaseModel):
+   studentID: str
+   name: str
+   attendaceCount: int
+   absentCount: int
 
 # Endpoint to create a new user
 @router.post("/users/create", response_model=User)
