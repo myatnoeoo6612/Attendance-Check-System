@@ -40,100 +40,62 @@
 //     );
 // };
 
-// export default SubjectReport;
+// export default SubjectReport; 
 
 
-import React, { useState, useEffect } from "react";
-import { CircularProgress, Container, Typography, Snackbar, Alert } from "@mui/material";
-
-const API_URL = "http://localhost:8000"; // Backend URL
+// nextjs/pages/subject-report.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const SubjectReport = () => {
-  // State to hold student data
   const [students, setStudents] = useState([]);
-  // State to manage loading and error states
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  // Fetch student data from the backend
   useEffect(() => {
-    const fetchStudentData = async () => {
+    const fetchStudents = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/students`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch student data");
-        }
-        const data = await response.json();
-        setStudents(data);
+        const response = await axios.get('http://localhost:8000/api/sstudents');
+        console.log("API Response:", response.data); // Log the response to check the structure
+        setStudents(response.data);
       } catch (error) {
-        setSnackbarMessage(error.message || "Failed to fetch student data");
-        setSnackbarSeverity("error");
-        setOpenSnackbar(true);
-        setError(error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching students:", error);
+        setError("Failed to fetch students. Please check the server or network connection.");
       }
     };
-
-    fetchStudentData();
+    fetchStudents();
   }, []);
 
-  // Handle Snackbar close
-  const handleSnackbarClose = () => {
-    setOpenSnackbar(false);
-  };
-
   return (
-    <Container>
-      <Typography variant="h4" mt={4} mb={2} align="center">
-        Subject Report
-      </Typography>
-
-      {/* Display loading indicator if data is still being fetched */}
-      {loading ? (
-        <div style={{ textAlign: "center", padding: "20px" }}>
-          <CircularProgress />
-          <Typography variant="h6" mt={2}>
-            Loading...
-          </Typography>
-        </div>
-      ) : error ? (
-        <Typography variant="h6" color="error" align="center">
-          Failed to load student data.
-        </Typography>
-      ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              <th style={{ border: "1px solid black", padding: "8px" }}>Student Name</th>
-              <th style={{ border: "1px solid black", padding: "8px" }}>ID</th>
-              <th style={{ border: "1px solid black", padding: "8px" }}>Total Present Day</th>
-              <th style={{ border: "1px solid black", padding: "8px" }}>Total Absence Day</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student, index) => (
+    <div style={{ padding: '20px' }}>
+      <h1>Subject Report</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Student Name</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Total Present Day</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Total Absence Day</th>
+          </tr>
+        </thead>
+        <tbody>
+          {students.length > 0 ? (
+            students.map((student, index) => (
               <tr key={index}>
-                <td style={{ border: "1px solid black", padding: "8px" }}>{student.name}</td>
-                <td style={{ border: "1px solid black", padding: "8px" }}>{student.studentID}</td>
-                <td style={{ border: "1px solid black", padding: "8px" }}>{student.attendanceCount}</td>
-                <td style={{ border: "1px solid black", padding: "8px" }}>{student.absentCount}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{student.name}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{student.studentid}</td> {/* Adjusted to lowercase `studentid` */}
+                <td style={{ border: '1px solid black', padding: '8px' }}>{student.attendancecount}</td> {/* Adjusted to lowercase `attendancecount` */}
+                <td style={{ border: '1px solid black', padding: '8px' }}>{student.absentcount}</td> {/* Adjusted to lowercase `absentcount` */}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {/* Snackbar for notifications */}
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </Container>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4" style={{ textAlign: 'center', padding: '8px' }}>No students found</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
