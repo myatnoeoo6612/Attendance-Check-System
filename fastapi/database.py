@@ -103,26 +103,6 @@ async def delete_student_by_id(studentID: int):
     deleted_student = await database.fetch_one(query=query, values=values)
     return deleted_student
 
-# Function to fetch all students from the database
-async def get_all_students():
-    """
-    Fetches all students from the Student table.
-
-    Returns:
-        List of dictionaries containing student details.
-    """
-    query = """
-    SELECT studentid, name, attendancecount, absentcount
-    FROM student
-    """
-    try:
-        students = await database.fetch_all(query=query)
-        return students
-    except Exception as e:
-        print(f"Failed to fetch students: {e}")
-        return []
-
-
 async def get_attendance_by_id(attendanceID: int):
     query = """
     SELECT Date
@@ -145,3 +125,22 @@ async def create_attendance(Date: date):
     values = {"Date": Date}
     new_attendance = await database.fetch_one(query=query, values=values)
     return new_attendance
+
+async def get_all_students():
+    """
+    Retrieves all student records from the 'Student' table.
+
+    Returns:
+        List[dict]: A list of dictionaries representing each student record.
+    """
+    query = "SELECT * FROM Student"
+    try:
+        students = await database.fetch_all(query=query)
+        if not students:
+            print("No students found in the database.")
+        else:
+            print(f"Retrieved {len(students)} students from the database.")
+        return students
+    except Exception as e:
+        print(f"Error fetching students: {e}")  # Log the exact error
+        raise RuntimeError(f"Failed to fetch students: {e}")
