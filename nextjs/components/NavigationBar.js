@@ -15,7 +15,7 @@ const NavigationBar = () => {
       <AppBar position="static">
           <Toolbar>
               <Tabs value={router.pathname} onChange={handleChange}>
-                  <Tab label="Dashboard" value="/" />
+                  <Tab label="Dashboard" value="/dashboard" />
                   <Tab label="Attendance" value="/attendance" />
                   <Tab label="Add attendance" value="/add-attendance" />
                   <Tab label="Subject report" value="/subject-report" />

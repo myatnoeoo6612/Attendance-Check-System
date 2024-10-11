@@ -1,10 +1,11 @@
+// _app.js
 import "@/styles/globals.css";
 import React from "react";
 import { useRouter } from "next/router";
 import { AppCacheProvider } from "@mui/material-nextjs/v13-pagesRouter";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { Roboto } from "next/font/google";
-import Layout from "@/components/layout";
+import Layout from "@/components/layout"; // Assuming Layout contains the NavigationBar
 import useBearStore from "@/store/useBearStore";
 import Head from "next/head";
 import { Backdrop, CircularProgress } from "@mui/material";
@@ -31,10 +32,13 @@ export default function App({ Component, pageProps, props }) {
   React.useEffect(() => {
     console.log("App load", pageName, router.query);
     setLoading(true);
-    // TODO: This section is use to handle page change.
-    setAppName("Say Hi")
+    // Set application name as part of state management
+    setAppName("Say Hi");
     setLoading(false);
   }, [router, pageName]);
+
+  // Define paths where the NavigationBar should be excluded
+  const excludeNavPaths = ['/']; // Add paths like '/', '/login', etc. where you don't want the NavigationBar
 
   return (
     <React.Fragment>
@@ -47,9 +51,14 @@ export default function App({ Component, pageProps, props }) {
 
       <AppCacheProvider {...props}>
         <ThemeProvider theme={theme}>
-          <Layout>
+          {/* Conditionally render the Layout (and thus NavigationBar) only if the current path is not in excludeNavPaths */}
+          {excludeNavPaths.includes(router.pathname) ? (
             <Component {...pageProps} />
-          </Layout>
+          ) : (
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          )}
         </ThemeProvider>
       </AppCacheProvider>
     </React.Fragment>
