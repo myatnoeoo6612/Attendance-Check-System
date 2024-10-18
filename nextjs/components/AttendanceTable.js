@@ -3,8 +3,8 @@ import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead
 
 const AttendanceTable = () => {
   const rows = [
-    { name: 'Pain', id: '60011578' },
-    { name: 'Rein', id: '60011789' },
+    { name: 'Myat', id: '6011066' },
+    { name: 'Noe', id: '6011066' },
   ];
 
   return (

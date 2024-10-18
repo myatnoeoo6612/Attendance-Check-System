@@ -1,6 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Box, Typography, Button, CircularProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+} from '@mui/material';
 import axios from 'axios';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
+
+// Custom theme to match the Dashboard
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#66BB6A', // Light green primary color (matching Dashboard)
+    },
+    secondary: {
+      main: '#D81B60', // Secondary accent color
+    },
+    background: {
+      default: '#F1F8E9', // Light green background
+    },
+    text: {
+      primary: '#2E7D32', // Dark green text color
+      secondary: '#558B2F', // Lighter green for secondary text
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h4: {
+      fontSize: '2.5rem',
+      fontWeight: 600,
+      color: '#2E7D32',
+    },
+    h6: {
+      fontSize: '1.2rem',
+      color: '#558B2F',
+    },
+  },
+});
+
+// Styled Table components
+const StyledTable = styled(Table)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+}));
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  color: '#000000', // Set font color to black
+  fontWeight: 'bold',
+  backgroundColor: theme.palette.primary.main, // Green background for table header
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:nth-of-type(even)': {
+    backgroundColor: theme.palette.primary.light, // Light green for even rows
+  },
+  '&:hover': {
+    backgroundColor: theme.palette.primary.dark, // Darker green on hover
+  },
+}));
 
 const Attendance = () => {
   const [date, setDate] = useState('2023-03-15'); // Default date for testing
@@ -48,30 +112,28 @@ const Attendance = () => {
     }
   };
 
-  // Function to update the attendance status for each student
+  // Function to handle attendance check change
   const handleAttendanceCheckChange = async (studentID, newCheckStatus) => {
     try {
       console.log(`Updating attendance check for student ID: ${studentID} to ${newCheckStatus}`);
 
-      // Create or update the attendance link for the student
-      const updateResponse = await axios.post('http://localhost:8000/api/attendance/link', {
+      // Update the attendance status for the student
+      await axios.post('http://localhost:8000/api/attendance/link', {
         studentid: studentID,
-        attendanceid: attendanceID, // Make sure `attendanceID` is an integer
-        attendancecheck: newCheckStatus,
+        attendanceid: attendanceID, // Ensure the correct attendanceID is passed
+        attendancecheck: newCheckStatus, // Update attendance status
       });
-      console.log('Attendance link updated successfully:', updateResponse.data);
 
-      // Refresh attendance links after update
+      // Update the attendance links to reflect changes
       const updatedLinksResponse = await axios.get(`http://localhost:8000/api/attendance/link/check`, {
-        params: { attendanceid: attendanceID } // Pass only `attendanceid` as expected by the API
+        params: { attendanceid: attendanceID },
       });
 
       if (Array.isArray(updatedLinksResponse.data.links)) {
-        setAttendanceLinks(updatedLinksResponse.data.links); // Refresh the attendance links in state
+        setAttendanceLinks(updatedLinksResponse.data.links); // Update attendance links in state
       }
     } catch (error) {
       console.error('Error updating attendance link:', error.message);
-      console.error('Error details:', error.response ? error.response.data : 'No response from server');
     }
   };
 
@@ -81,22 +143,17 @@ const Attendance = () => {
     try {
       // Fetch the attendance record for the selected date
       const attendanceResponse = await axios.get(`http://localhost:8000/api/attendance/by-date`, {
-        params: { date }
+        params: { date },
       });
 
       const attendanceID = parseInt(attendanceResponse.data.attendance.attendanceid, 10); // Parse to ensure integer type
       setAttendanceID(attendanceID);
       console.log('Fetched attendance ID:', attendanceID);
 
-      // Log the parameter value being sent to the API
-      console.log(`Sending request to /attendance/link/check with attendanceid: ${attendanceID}`);
-
       // Fetch the attendance links for this attendance record
       const linksResponse = await axios.get(`http://localhost:8000/api/attendance/link/check`, {
-        params: { attendanceid: attendanceID } // Ensure `attendanceid` is passed correctly
+        params: { attendanceid: attendanceID },
       });
-
-      console.log('Attendance links fetched successfully:', linksResponse.data);
 
       if (Array.isArray(linksResponse.data.links)) {
         setAttendanceLinks(linksResponse.data.links); // Set the attendance links in state
@@ -106,84 +163,83 @@ const Attendance = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error showing attendance table:', error.message);
-      console.error('Error details:', error.response ? error.response.data : 'No response from server');
       setLoading(false);
     }
   };
 
-  // Render the UI for the attendance page
   return (
-    <Container>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
-        <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="date">Date: </label>
-          <input
-            type="date"
-            id="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            style={{ marginRight: '10px' }}
-          />
-          <Button variant="contained" onClick={generateSheet} disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : 'Generate Sheet'}
-          </Button>
-        </div>
-        <Button variant="contained" color="primary" onClick={showAttendanceTable} disabled={loading}>
-          {loading ? <CircularProgress size={24} /> : 'Show Data'}
-        </Button>
-      </Box>
-      <Box mt={4}>
-        <Typography variant="h4">Attendance</Typography>
-        {/* Display the attendance table with student data */}
-        {showData && (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Student ID</TableCell>
-                <TableCell>Student Name</TableCell>
-                <TableCell>Attendance Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {students.map((student, index) => {
-                const link = attendanceLinks.find((link) => link.studentid === student.studentid);
-                const attendanceStatus = link ? link.attendancecheck : false; // Default to false if no link is found
+    <ThemeProvider theme={theme}>
+      <Container>
+        {/* Header and controls */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
+          <Typography variant="h4">Attendance</Typography>
+          <Box display="flex" alignItems="center">
+            <TextField
+              type="date"
+              id="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              style={{ marginRight: '10px' }}
+            />
+            <Button variant="contained" onClick={generateSheet} disabled={loading} style={{ marginRight: '10px' }}>
+              {loading ? <CircularProgress size={24} /> : 'Generate Sheet'}
+            </Button>
+            <Button variant="contained" color="primary" onClick={showAttendanceTable} disabled={loading}>
+              {loading ? <CircularProgress size={24} /> : 'Show Data'}
+            </Button>
+          </Box>
+        </Box>
 
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{student.studentid}</TableCell>
-                    <TableCell>{student.name}</TableCell>
-                    <TableCell>
-                      {attendanceStatus ? 'Present' : 'Absent'}
-                    </TableCell>
-                    <TableCell>
-                      {/* Button to set attendance status to Present */}
-                      <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => handleAttendanceCheckChange(student.studentid, true)}
-                      >
-                        Present
-                      </Button>
-                      {/* Button to set attendance status to Absent */}
-                      <Button
-                        variant="contained"
-                        color="error"
-                        onClick={() => handleAttendanceCheckChange(student.studentid, false)}
-                        style={{ marginLeft: '10px' }}
-                      >
-                        Absent
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </Box>
-    </Container>
+        {/* Attendance Table */}
+        <Box mt={4}>
+          {showData && (
+            <StyledTable>
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell>Student ID</StyledTableCell>
+                  <StyledTableCell>Student Name</StyledTableCell>
+                  <StyledTableCell>Attendance Status</StyledTableCell>
+                  <StyledTableCell>Actions</StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {students.map((student, index) => {
+                  const link = attendanceLinks.find((link) => link.studentid === student.studentid);
+                  const attendanceStatus = link ? link.attendancecheck : false; // Default to false if no link is found
+
+                  return (
+                    <StyledTableRow key={index}>
+                      <TableCell>{student.studentid}</TableCell>
+                      <TableCell>{student.name}</TableCell>
+                      <TableCell>
+                        {attendanceStatus ? 'Present' : 'Absent'}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          onClick={() => handleAttendanceCheckChange(student.studentid, true)}
+                        >
+                          Present
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() => handleAttendanceCheckChange(student.studentid, false)}
+                          style={{ marginLeft: '10px' }}
+                        >
+                          Absent
+                        </Button>
+                      </TableCell>
+                    </StyledTableRow>
+                  );
+                })}
+              </TableBody>
+            </StyledTable>
+          )}
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 };
 

@@ -1,4 +1,3 @@
-// components/DonutChart.js
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -22,8 +21,8 @@ const DonutChart = ({ data }) => {
       {/* Pie Chart Container */}
       <div
         style={{
-          width: '200px',
-          height: '200px',
+          width: '300px', // Increased size
+          height: '300px', // Increased size
           borderRadius: '50%',
           ...backgroundStyle, // Apply background style with conic-gradient
           display: 'flex',
@@ -35,8 +34,8 @@ const DonutChart = ({ data }) => {
         {/* Inner Circle for Donut Effect */}
         <div
           style={{
-            width: '100px',
-            height: '100px',
+            width: '140px', // Increased inner circle size
+            height: '140px',
             backgroundColor: '#fff',
             borderRadius: '50%',
             position: 'absolute',
@@ -44,11 +43,11 @@ const DonutChart = ({ data }) => {
         ></div>
       </div>
       {/* Labels */}
-      <div style={{ marginTop: '16px' }}>
-        <div style={{ color: '#4CAF50', fontWeight: 'bold' }}>
+      <div style={{ marginTop: '24px', textAlign: 'center' }}> {/* Spaced out for better layout */}
+        <div style={{ color: '#4CAF50', fontWeight: 'bold', fontSize: '1.25rem' }}> {/* Bigger font size */}
           Present: {presentPercentage.toFixed(2)}%
         </div>
-        <div style={{ color: '#F44336', fontWeight: 'bold' }}>
+        <div style={{ color: '#F44336', fontWeight: 'bold', fontSize: '1.25rem' }}>
           Absent: {absentPercentage.toFixed(2)}%
         </div>
       </div>

@@ -1,51 +1,71 @@
-// // nextjs/pages/subject-report.js
-// import React from 'react';
-
-// const SubjectReport = () => {
-//     const rows = [
-//         { name: 'Pari', id: '6601150', present: 13, absence: 2 },
-//         { name: 'Fern', id: '6602150', present: 2, absence: 10 },
-//         { name: 'Iminpain', id: '6602350', present: 3, absence: 50 },
-//     ];
-
-//     return (
-//         <div style={{ padding: '20px' }}>
-//             <h1>Subject Report</h1>
-//             {/* <div style={{ marginBottom: '20px' }}>
-//                 <label htmlFor="date">Date: </label>
-//                 <input type="date" id="date" defaultValue="2023-03-15" style={{ marginRight: '10px' }} />
-//                 <button>Generate Sheet</button>
-//             </div> */}
-//             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-//                 <thead>
-//                     <tr>
-//                         <th style={{ border: '1px solid black', padding: '8px' }}>Student name</th>
-//                         <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
-//                         <th style={{ border: '1px solid black', padding: '8px' }}>Total Present Day</th>
-//                         <th style={{ border: '1px solid black', padding: '8px' }}>Total Absence Day</th>
-//                     </tr>
-//                 </thead>
-//                 <tbody>
-//                     {rows.map((row, index) => (
-//                         <tr key={index}>
-//                             <td style={{ border: '1px solid black', padding: '8px' }}>{row.name}</td>
-//                             <td style={{ border: '1px solid black', padding: '8px' }}>{row.id}</td>
-//                             <td style={{ border: '1px solid black', padding: '8px' }}>{row.present}</td>
-//                             <td style={{ border: '1px solid black', padding: '8px' }}>{row.absence}</td>
-//                         </tr>
-//                     ))}
-//                 </tbody>
-//             </table>
-//         </div>
-//     );
-// };
-
-// export default SubjectReport; 
-
-
-// nextjs/pages/subject-report.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Box,
+} from '@mui/material';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
+
+// Custom theme to match the Dashboard
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#66BB6A', // Light green primary color (matching Dashboard)
+    },
+    secondary: {
+      main: '#D81B60', // Secondary accent color
+    },
+    background: {
+      default: '#F1F8E9', // Light green background
+    },
+    text: {
+      primary: '#2E7D32', // Dark green text color
+      secondary: '#558B2F', // Lighter green for secondary text
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h4: {
+      fontSize: '2.5rem',
+      fontWeight: 600,
+      color: '#2E7D32',
+    },
+    h6: {
+      fontSize: '1.2rem',
+      color: '#558B2F',
+    },
+  },
+});
+
+// Styled components for the table
+const StyledTable = styled(Table)(({ theme }) => ({
+  borderCollapse: 'collapse',
+  width: '100%',
+  backgroundColor: theme.palette.background.paper,
+}));
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  border: '1px solid black',
+  padding: '8px',
+  color: '#000000', // Explicitly set font color to black
+  fontWeight: 'bold',
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:nth-of-type(even)': {
+    backgroundColor: theme.palette.primary.light, // Light green for even rows
+  },
+  '&:hover': {
+    backgroundColor: theme.palette.primary.dark, // Darker green on hover
+  },
+}));
 
 const SubjectReport = () => {
   const [students, setStudents] = useState([]);
@@ -66,36 +86,46 @@ const SubjectReport = () => {
   }, []);
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Subject Report</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Student Name</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Total Present Day</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Total Absence Day</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.length > 0 ? (
-            students.map((student, index) => (
-              <tr key={index}>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{student.name}</td>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{student.studentid}</td> {/* Adjusted to lowercase `studentid` */}
-                <td style={{ border: '1px solid black', padding: '8px' }}>{student.attendancecount}</td> {/* Adjusted to lowercase `attendancecount` */}
-                <td style={{ border: '1px solid black', padding: '8px' }}>{student.absentcount}</td> {/* Adjusted to lowercase `absentcount` */}
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4" style={{ textAlign: 'center', padding: '8px' }}>No students found</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+    <ThemeProvider theme={theme}>
+      <Container>
+        <Box mt={4} mb={4}>
+          <Typography variant="h4" align="center">Report</Typography> {/* Changed to "Report" */}
+        </Box>
+
+        {error && <Typography color="error" align="center">{error}</Typography>}
+
+        <Paper elevation={3} sx={{ padding: 2 }}>
+          <StyledTable>
+            <TableHead>
+              <StyledTableRow>
+                <StyledTableCell>Student Name</StyledTableCell>
+                <StyledTableCell>ID</StyledTableCell>
+                <StyledTableCell>Total Present Day</StyledTableCell>
+                <StyledTableCell>Total Absence Day</StyledTableCell>
+              </StyledTableRow>
+            </TableHead>
+            <TableBody>
+              {students.length > 0 ? (
+                students.map((student, index) => (
+                  <StyledTableRow key={index}>
+                    <TableCell style={{ color: '#000000' }}>{student.name}</TableCell> {/* Black font */}
+                    <TableCell style={{ color: '#000000' }}>{student.studentid}</TableCell> {/* Black font */}
+                    <TableCell style={{ color: '#000000' }}>{student.attendancecount}</TableCell> {/* Black font */}
+                    <TableCell style={{ color: '#000000' }}>{student.absentcount}</TableCell> {/* Black font */}
+                  </StyledTableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} align="center" style={{ padding: '8px', color: '#000000' }}>
+                    No students found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </StyledTable>
+        </Paper>
+      </Container>
+    </ThemeProvider>
   );
 };
 

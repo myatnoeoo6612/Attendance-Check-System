@@ -10,8 +10,41 @@ import {
   Container,
 } from "@mui/material";
 import { styled } from "@mui/system";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const API_URL = "http://localhost:8000"; // FastAPI backend URL
+
+// Custom Theme to Match Dashboard
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#66BB6A', // Same primary green from Dashboard
+    },
+    secondary: {
+      main: '#D81B60', // Same secondary color (red/pink)
+    },
+    background: {
+      default: '#F1F8E9', // Light green background to match the Dashboard
+      paper: '#FFFFFF',
+    },
+    text: {
+      primary: '#2E7D32', // Dark green for text
+      secondary: '#558B2F', // Lighter green for secondary text
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h4: {
+      fontSize: '2.5rem', // Bigger title font size
+      fontWeight: 600,
+      color: '#2E7D32',
+    },
+    h6: {
+      fontSize: '1.2rem',
+      color: '#558B2F',
+    },
+  },
+});
 
 // Styled Components
 const Background = styled("div")({
@@ -20,30 +53,35 @@ const Background = styled("div")({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "linear-gradient(135deg, #f9f9f9 50%, #fff 50%)",
+  background: theme.palette.background.default,
 });
 
-const FormContainer = styled(Paper)({
-  padding: "30px",
-  borderRadius: "15px",
-  boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
-  backgroundColor: "#ffffff",
+const FormContainer = styled(Paper)(({ theme }) => ({
+  padding: "40px",
+  borderRadius: "20px",
+  boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.1)",
+  backgroundColor: theme.palette.background.paper,
   textAlign: "center",
-  marginBottom: "40px",
-});
+  width: "100%",
+  maxWidth: "500px",
+  minHeight: "400px", // Equal height for both forms
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center", // Center the content vertically
+}));
 
-const Title = styled(Typography)({
+const Title = styled(Typography)(({ theme }) => ({
   fontWeight: "bold",
-  fontSize: "24px",
-  color: "#0277bd",
+  fontSize: theme.typography.h4.fontSize,
+  color: theme.palette.text.primary,
   marginBottom: "8px",
-});
+}));
 
-const Subtitle = styled(Typography)({
-  fontSize: "14px",
-  color: "#ff4081",
+const Subtitle = styled(Typography)(({ theme }) => ({
+  fontSize: theme.typography.h6.fontSize,
+  color: theme.palette.text.secondary,
   marginBottom: "16px",
-});
+}));
 
 export default function AddAttendancePage() {
   const [newStudentName, setNewStudentName] = useState("");
@@ -113,75 +151,79 @@ export default function AddAttendancePage() {
   };
 
   return (
-    <Background>
-      <Container maxWidth="lg">
-        <Grid container spacing={2} alignItems="center">
-          {/* Add Student Section */}
-          <Grid item xs={12} sm={6} md={4}>
-            <FormContainer elevation={3}>
-              <Title variant="h4">Add New Student</Title>
-              <Subtitle>Enter the student's name to add them to the system</Subtitle>
-              <form onSubmit={handleAddStudent}>
-                <TextField
-                  fullWidth
-                  label="Student Name"
-                  variant="outlined"
-                  margin="normal"
-                  value={newStudentName}
-                  onChange={(e) => setNewStudentName(e.target.value)}
-                />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  style={{ marginTop: "16px", backgroundColor: "#0277bd" }}
-                  type="submit"
-                >
-                  Add Student
-                </Button>
-              </form>
-            </FormContainer>
+    <ThemeProvider theme={theme}>
+      <Background>
+        <Container maxWidth="lg">
+          <Grid container spacing={4} justifyContent="center" alignItems="center">
+            {/* Add Student Section */}
+            <Grid item xs={12} md={6}>
+              <FormContainer elevation={3}>
+                <Title variant="h4">Add Student</Title>
+                <Subtitle>Enter the student's name</Subtitle>
+                <form onSubmit={handleAddStudent}>
+                  <TextField
+                    fullWidth
+                    label="Student Name"
+                    variant="outlined"
+                    margin="normal"
+                    value={newStudentName}
+                    onChange={(e) => setNewStudentName(e.target.value)}
+                    style={{ marginBottom: '20px' }} // Equal margin
+                  />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    style={{ padding: "12px", fontSize: "1.1rem" }}
+                    type="submit"
+                  >
+                    Add
+                  </Button>
+                </form>
+              </FormContainer>
+            </Grid>
+
+            {/* Delete Student Section */}
+            <Grid item xs={12} md={6}>
+              <FormContainer elevation={3}>
+                <Title variant="h4">Delete Student by ID</Title>
+                <Subtitle>Enter the student ID</Subtitle>
+                <form onSubmit={handleDeleteStudent}>
+                  <TextField
+                    fullWidth
+                    label="Student Name"
+                    variant="outlined"
+                    margin="normal"
+                    value={deleteStudentID}
+                    onChange={(e) => setDeleteStudentID(e.target.value)}
+                    style={{ marginBottom: '20px' }} // Equal margin
+                  />
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    fullWidth
+                    style={{ padding: "12px", fontSize: "1.1rem" }}
+                    type="submit"
+                  >
+                    Delete Student
+                  </Button>
+                </form>
+              </FormContainer>
+            </Grid>
           </Grid>
 
-          {/* Delete Student Section */}
-          <Grid item xs={12} sm={6} md={4}>
-            <FormContainer elevation={3}>
-              <Title variant="h4">Delete Student</Title>
-              <Subtitle>Enter the student ID to delete them from the system</Subtitle>
-              <form onSubmit={handleDeleteStudent}>
-                <TextField
-                  fullWidth
-                  label="Student ID"
-                  variant="outlined"
-                  margin="normal"
-                  value={deleteStudentID}
-                  onChange={(e) => setDeleteStudentID(e.target.value)}
-                />
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  fullWidth
-                  style={{ marginTop: "16px", backgroundColor: "#d81b60" }}
-                  type="submit"
-                >
-                  Delete Student
-                </Button>
-              </form>
-            </FormContainer>
-          </Grid>
-        </Grid>
-
-        {/* Snackbar for notifications */}
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
-        >
-          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </Container>
-    </Background>
+          {/* Snackbar for notifications */}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+          >
+            <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+        </Container>
+      </Background>
+    </ThemeProvider>
   );
 }
